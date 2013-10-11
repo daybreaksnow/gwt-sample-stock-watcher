@@ -1,17 +1,25 @@
 package com.google.gwt.sample.stockwatcher.client;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.google.gwt.sample.stockwatcher.shared.FieldVerifier;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyCodes;
+import com.google.gwt.event.dom.client.KeyPressEvent;
+import com.google.gwt.event.dom.client.KeyPressHandler;
 import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.event.dom.client.KeyUpHandler;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DialogBox;
+import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.TextBox;
@@ -21,132 +29,97 @@ import com.google.gwt.user.client.ui.VerticalPanel;
  * Entry point classes define <code>onModuleLoad()</code>.
  */
 public class StockWatcher implements EntryPoint {
-	/**
-	 * The message displayed to the user when the server cannot be reached or
-	 * returns an error.
-	 */
-	private static final String SERVER_ERROR = "An error occurred while "
-			+ "attempting to contact the server. Please check your network "
-			+ "connection and try again.";
 
-	/**
-	 * Create a remote service proxy to talk to the server-side Greeting service.
-	 */
-	private final GreetingServiceAsync greetingService = GWT
-			.create(GreetingService.class);
-
-	/**
-	 * This is the entry point method.
-	 */
+	private VerticalPanel mainPanel = new VerticalPanel();
+	private FlexTable stockFlexTable = new FlexTable();
+	private HorizontalPanel addPanel = new HorizontalPanel();
+	private TextBox newSymbolTextBox = new TextBox();
+	private Button addStockButton = new Button("Add");
+	private Label lastUpdatedLabel = new Label();
+	
+	//TODO これはテーブルに保持させたい
+	private List<String> stocks = new ArrayList<String>();
+	
 	public void onModuleLoad() {
-		final Button sendButton = new Button("Send");
-		final TextBox nameField = new TextBox();
-		nameField.setText("GWT User");
-		final Label errorLabel = new Label();
+		initStockTable();
+		assemblePanel();
+		initHandler();
+	}
 
-		// We can add style names to widgets
-		sendButton.addStyleName("sendButton");
 
-		// Add the nameField and sendButton to the RootPanel
-		// Use RootPanel.get() to get the entire body element
-		RootPanel.get("nameFieldContainer").add(nameField);
-		RootPanel.get("sendButtonContainer").add(sendButton);
-		RootPanel.get("errorLabelContainer").add(errorLabel);
+	private void initStockTable() {
+		//カラム初期化
+		stockFlexTable.setText(0, 0, "Symbol");
+		stockFlexTable.setText(0, 1, "Price");
+		stockFlexTable.setText(0, 2, "Change");
+		stockFlexTable.setText(0, 3, "Remove");
+	}
+	
+	private void assemblePanel() {
+		//追加ボタンエリア
+		addPanel.add(newSymbolTextBox);
+		addPanel.add(addStockButton);
+		
+		//ルートエリア
+		mainPanel.add(stockFlexTable);
+		mainPanel.add(addPanel);
+		mainPanel.add(lastUpdatedLabel);
+		
+		//HTMLにはめ込む
+		RootPanel.get("stockList").add(mainPanel);
+	}
 
-		// Focus the cursor on the name field when the app loads
-		nameField.setFocus(true);
-		nameField.selectAll();
-
-		// Create the popup dialog box
-		final DialogBox dialogBox = new DialogBox();
-		dialogBox.setText("Remote Procedure Call");
-		dialogBox.setAnimationEnabled(true);
-		final Button closeButton = new Button("Close");
-		// We can set the id of a widget by accessing its Element
-		closeButton.getElement().setId("closeButton");
-		final Label textToServerLabel = new Label();
-		final HTML serverResponseLabel = new HTML();
-		VerticalPanel dialogVPanel = new VerticalPanel();
-		dialogVPanel.addStyleName("dialogVPanel");
-		dialogVPanel.add(new HTML("<b>Sending name to the server:</b>"));
-		dialogVPanel.add(textToServerLabel);
-		dialogVPanel.add(new HTML("<br><b>Server replies:</b>"));
-		dialogVPanel.add(serverResponseLabel);
-		dialogVPanel.setHorizontalAlignment(VerticalPanel.ALIGN_RIGHT);
-		dialogVPanel.add(closeButton);
-		dialogBox.setWidget(dialogVPanel);
-
-		// Add a handler to close the DialogBox
-		closeButton.addClickHandler(new ClickHandler() {
+	private void initHandler() {
+		//追加ボタン
+		addStockButton.addClickHandler(new ClickHandler() {
+			@Override
 			public void onClick(ClickEvent event) {
-				dialogBox.hide();
-				sendButton.setEnabled(true);
-				sendButton.setFocus(true);
+				addStock();
 			}
 		});
-
-		// Create a handler for the sendButton and nameField
-		class MyHandler implements ClickHandler, KeyUpHandler {
-			/**
-			 * Fired when the user clicks on the sendButton.
-			 */
-			public void onClick(ClickEvent event) {
-				sendNameToServer();
-			}
-
-			/**
-			 * Fired when the user types in the nameField.
-			 */
-			public void onKeyUp(KeyUpEvent event) {
-				if (event.getNativeKeyCode() == KeyCodes.KEY_ENTER) {
-					sendNameToServer();
+		
+		//名前入力テキストEnterキー押下時
+		newSymbolTextBox.addKeyPressHandler(new KeyPressHandler() {
+			@Override
+			public void onKeyPress(KeyPressEvent event) {
+				if(event.getCharCode() == KeyCodes.KEY_ENTER){
+					addStock();
 				}
 			}
+		});
+		
+	}
 
-			/**
-			 * Send the name from the nameField to the server and wait for a response.
-			 */
-			private void sendNameToServer() {
-				// First, we validate the input.
-				errorLabel.setText("");
-				String textToServer = nameField.getText();
-				if (!FieldVerifier.isValidName(textToServer)) {
-					errorLabel.setText("Please enter at least four characters");
-					return;
-				}
-
-				// Then, we send the input to the server.
-				sendButton.setEnabled(false);
-				textToServerLabel.setText(textToServer);
-				serverResponseLabel.setText("");
-				greetingService.greetServer(textToServer,
-						new AsyncCallback<String>() {
-							public void onFailure(Throwable caught) {
-								// Show the RPC error message to the user
-								dialogBox
-										.setText("Remote Procedure Call - Failure");
-								serverResponseLabel
-										.addStyleName("serverResponseLabelError");
-								serverResponseLabel.setHTML(SERVER_ERROR);
-								dialogBox.center();
-								closeButton.setFocus(true);
-							}
-
-							public void onSuccess(String result) {
-								dialogBox.setText("Remote Procedure Call");
-								serverResponseLabel
-										.removeStyleName("serverResponseLabelError");
-								serverResponseLabel.setHTML(result);
-								dialogBox.center();
-								closeButton.setFocus(true);
-							}
-						});
-			}
+	private void addStock(){
+		final String symbol = newSymbolTextBox.getText().toUpperCase().trim();
+		//validate
+		if(!symbol.matches("^[0-9A-Z\\.]{1,10}$")){
+			Window.alert("'" + symbol + "' is not a valid symbol.");
+			newSymbolTextBox.selectAll();
+			return;
 		}
-
-		// Add a handler to send the name to the server
-		MyHandler handler = new MyHandler();
-		sendButton.addClickHandler(handler);
-		nameField.addKeyUpHandler(handler);
+		if(stocks.contains(symbol)){
+			Window.alert("'" + symbol + "' exists.");
+			return;
+		}
+		//セルの追加
+		int row = stockFlexTable.getRowCount();
+		stocks.add(symbol);
+		//新しいセルの追加。リサイズは自動で行われる
+		stockFlexTable.setText(row, 0, symbol);
+		//削除ボタンの追加
+		Button removeStockButton = new Button("x");
+		removeStockButton.addClickHandler(new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+				int removeIndex = stocks.indexOf(symbol);
+				stocks.remove(removeIndex);
+				stockFlexTable.removeRow(removeIndex+1);
+			}
+		});
+		stockFlexTable.setWidget(row, 3, removeStockButton);
+		
+		newSymbolTextBox.setFocus(true);
+		newSymbolTextBox.setText("");
 	}
 }
