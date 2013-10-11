@@ -1,24 +1,21 @@
 package com.google.gwt.sample.stockwatcher.client;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.google.gwt.sample.stockwatcher.shared.FieldVerifier;
 import com.google.gwt.core.client.EntryPoint;
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.dom.client.KeyPressEvent;
 import com.google.gwt.event.dom.client.KeyPressHandler;
-import com.google.gwt.event.dom.client.KeyUpEvent;
-import com.google.gwt.event.dom.client.KeyUpHandler;
+import com.google.gwt.i18n.client.NumberFormat;
+import com.google.gwt.user.client.Random;
+import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
-import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.FlexTable;
-import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RootPanel;
@@ -39,24 +36,64 @@ public class StockWatcher implements EntryPoint {
 	
 	
 	private static final int STOCK_NAME_COLUMN_IDX = 0;
+	private static final int PRICE_COLUMN_IDX = 1;
+	private static final int CHANGE_PRICE_COLUMN_IDX = 2;
 	private static final int REMOTE_BUTTON_COLUMN_IDX = 3;
 	
-	//TODO これはテーブルに保持させたい
+	private static final int REFLESH_INTERVAL_MS = 5000; //mill second
+	
+	//TODO これはテーブルに保持させたい。モデルと部品を同時に操作しなけれいけないのは面倒
 	private List<String> stocks = new ArrayList<String>();
 	
 	public void onModuleLoad() {
 		initStockTable();
 		assemblePanel();
 		initHandler();
+		initTimer();
 	}
 
+	
+
+	private void refleshWatchList(){
+		final BigDecimal MAX_PRICE = BigDecimal.valueOf(100);
+		final BigDecimal MAX_PRICE_CHANGE_RATE = new BigDecimal("0.02");
+		
+		List<StockPrice> prices = new ArrayList<StockPrice>();
+		for (String stock : stocks) {
+			BigDecimal price = BigDecimal.valueOf(Random.nextDouble()).multiply(MAX_PRICE);
+			BigDecimal change = price.multiply(MAX_PRICE_CHANGE_RATE).multiply(BigDecimal.valueOf(Random.nextDouble() * 2.0 - 1.0));
+			
+			StockPrice stockPrice = new StockPrice(stock,price,change);
+			prices.add(stockPrice);
+		}
+		
+		updateTables(prices);
+	}
+	
+	private void updateTables(List<StockPrice> prices) {
+		for (StockPrice stockPrice : prices) {
+			if(!stocks.contains(stockPrice.getSymbol())){
+				return;
+			}
+			
+			int row = stocks.indexOf(stockPrice.getSymbol()) + 1;
+			
+			String priceText = NumberFormat.getFormat("#,##0.00").format(stockPrice.getPrice());
+			NumberFormat changeFormat = NumberFormat.getFormat("+#,##0.00;-#,##0.00");
+			String changeText = changeFormat.format(stockPrice.getChange());
+			String changePerText = changeFormat.format(stockPrice.getChangePercent());
+			
+			stockFlexTable.setText(row, PRICE_COLUMN_IDX, priceText);
+			stockFlexTable.setText(row, CHANGE_PRICE_COLUMN_IDX, changeText+ "(" + changePerText + "%)");
+		}
+	}
 
 	private void initStockTable() {
 		//カラム初期化
-		stockFlexTable.setText(0, 0, "Symbol");
-		stockFlexTable.setText(0, 1, "Price");
-		stockFlexTable.setText(0, 2, "Change");
-		stockFlexTable.setText(0, 3, "Remove");
+		stockFlexTable.setText(0, STOCK_NAME_COLUMN_IDX, "Symbol");
+		stockFlexTable.setText(0, PRICE_COLUMN_IDX, "Price");
+		stockFlexTable.setText(0, CHANGE_PRICE_COLUMN_IDX, "Change");
+		stockFlexTable.setText(0, REMOTE_BUTTON_COLUMN_IDX, "Remove");
 	}
 	
 	private void assemblePanel() {
@@ -93,6 +130,16 @@ public class StockWatcher implements EntryPoint {
 		});
 		
 	}
+	
+	private void initTimer() {
+		Timer refleshTimer = new Timer() {
+			@Override
+			public void run() {
+				refleshWatchList();
+			}
+		};
+		refleshTimer.scheduleRepeating(REFLESH_INTERVAL_MS);
+	}
 
 	private boolean validateAddStock(String symbol){
 		if(!symbol.matches("^[0-9A-Z\\.]{1,10}$")){
@@ -113,6 +160,8 @@ public class StockWatcher implements EntryPoint {
 			return;
 		}
 		addStockRow(symbol);
+		//価格更新
+		refleshWatchList();
 		
 		newSymbolTextBox.setFocus(true);
 		newSymbolTextBox.setText("");
