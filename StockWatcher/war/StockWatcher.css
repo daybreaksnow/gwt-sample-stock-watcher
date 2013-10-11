@@ -1,34 +1,24 @@
-/** Add css rules here for your application. */
-
-
-/** Example rules used by the template application (remove for your app) */
-h1 {
-  font-size: 2em;
-  font-weight: bold;
-  color: #777777;
-  margin: 40px 0px 70px;
-  text-align: center;
+body {
+	padding:10px;
 }
 
-.sendButton {
-  display: block;
-  font-size: 16pt;
+.watchListHeader{
+	background-color: #2062B8;
+	color:white;
+	font-style:italic;
 }
 
-/** Most GWT widgets already have a style name defined */
-.gwt-DialogBox {
-  width: 400px;
+.watchList{
+	border:1px solid silver;
+	padding:2px;
+	margin-bottom:6px;
 }
 
-.dialogVPanel {
-  margin: 5px;
+.watchListNumericColumn{
+	text-align:right;
+	width:8em;
 }
 
-.serverResponseLabelError {
-  color: red;
-}
-
-/** Set ids using widget.getElement().setId("idOfElement") */
-#closeButton {
-  margin: 15px 6px 6px;
+.watchListRemoveColumn{
+	text-align :center;
 }

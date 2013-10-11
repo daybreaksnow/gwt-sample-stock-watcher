@@ -100,6 +100,13 @@ public class StockWatcher implements EntryPoint {
 		stockFlexTable.setText(0, PRICE_COLUMN_IDX, "Price");
 		stockFlexTable.setText(0, CHANGE_PRICE_COLUMN_IDX, "Change");
 		stockFlexTable.setText(0, REMOTE_BUTTON_COLUMN_IDX, "Remove");
+		//スタイル適用
+		//ヘッダ行。テーブル全体のものよりも優先される？
+		stockFlexTable.getRowFormatter().addStyleName(0, "watchListHeader");
+		//テーブル全体
+		stockFlexTable.addStyleName("watchList");
+		//ヘッダ行スタイル適用
+		setRowStyle(0);
 	}
 	
 	private void assemblePanel() {
@@ -191,5 +198,17 @@ public class StockWatcher implements EntryPoint {
 			}
 		});
 		stockFlexTable.setWidget(row, REMOTE_BUTTON_COLUMN_IDX, removeStockButton);
+		//スタイル適用
+		setRowStyle(row);
+	}
+	
+	
+	private void setRowStyle(int rowIndex){
+		//スタイルの適用
+		// 数字列用スタイル。 XXX 列単位では適用できない？
+		stockFlexTable.getCellFormatter().addStyleName(rowIndex, PRICE_COLUMN_IDX, "watchListNumericColumn");
+		stockFlexTable.getCellFormatter().addStyleName(rowIndex, CHANGE_PRICE_COLUMN_IDX, "watchListNumericColumn");
+		//削除ボタン列
+		stockFlexTable.getCellFormatter().addStyleName(rowIndex, REMOTE_BUTTON_COLUMN_IDX, "watchListRemoveColumn");
 	}
 }
