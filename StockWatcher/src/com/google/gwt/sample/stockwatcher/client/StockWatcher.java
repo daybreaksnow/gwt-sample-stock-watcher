@@ -37,6 +37,10 @@ public class StockWatcher implements EntryPoint {
 	private Button addStockButton = new Button("Add");
 	private Label lastUpdatedLabel = new Label();
 	
+	
+	private static final int STOCK_NAME_COLUMN_IDX = 0;
+	private static final int REMOTE_BUTTON_COLUMN_IDX = 3;
+	
 	//TODO これはテーブルに保持させたい
 	private List<String> stocks = new ArrayList<String>();
 	
@@ -90,23 +94,37 @@ public class StockWatcher implements EntryPoint {
 		
 	}
 
-	private void addStock(){
-		final String symbol = newSymbolTextBox.getText().toUpperCase().trim();
-		//validate
+	private boolean validateAddStock(String symbol){
 		if(!symbol.matches("^[0-9A-Z\\.]{1,10}$")){
 			Window.alert("'" + symbol + "' is not a valid symbol.");
-			newSymbolTextBox.selectAll();
-			return;
+			return false;
 		}
 		if(stocks.contains(symbol)){
 			Window.alert("'" + symbol + "' exists.");
+			return false;
+		}
+		return true;
+	}
+	
+	private void addStock(){
+		final String symbol = newSymbolTextBox.getText().toUpperCase().trim();
+
+		if(!validateAddStock(symbol)){
 			return;
 		}
-		//セルの追加
+		addStockRow(symbol);
+		
+		newSymbolTextBox.setFocus(true);
+		newSymbolTextBox.setText("");
+	}
+
+
+	private void addStockRow(final String symbol) {
 		int row = stockFlexTable.getRowCount();
 		stocks.add(symbol);
 		//新しいセルの追加。リサイズは自動で行われる
-		stockFlexTable.setText(row, 0, symbol);
+		stockFlexTable.setText(row, STOCK_NAME_COLUMN_IDX, symbol);
+		
 		//削除ボタンの追加
 		Button removeStockButton = new Button("x");
 		removeStockButton.addClickHandler(new ClickHandler() {
@@ -117,9 +135,6 @@ public class StockWatcher implements EntryPoint {
 				stockFlexTable.removeRow(removeIndex+1);
 			}
 		});
-		stockFlexTable.setWidget(row, 3, removeStockButton);
-		
-		newSymbolTextBox.setFocus(true);
-		newSymbolTextBox.setText("");
+		stockFlexTable.setWidget(row, REMOTE_BUTTON_COLUMN_IDX, removeStockButton);
 	}
 }
