@@ -24,6 +24,20 @@ body {
 	text-align :center;
 }
 
+
+/** 金額用スタイル*/
+.noChange {
+  color: black;
+}
+
+.positiveChange {
+  color: green;
+}
+
+.negativeChange {
+  color: red;
+}
+
 /* dependentName */
 .gwt-Button-remove{
 	width:50px;

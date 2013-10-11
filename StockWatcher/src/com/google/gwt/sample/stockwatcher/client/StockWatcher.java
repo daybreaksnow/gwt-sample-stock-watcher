@@ -56,6 +56,7 @@ public class StockWatcher implements EntryPoint {
 
 	
 
+
 	private void refleshWatchList(){
 		final BigDecimal MAX_PRICE = BigDecimal.valueOf(100);
 		final BigDecimal MAX_PRICE_CHANGE_RATE = new BigDecimal("0.02");
@@ -86,7 +87,19 @@ public class StockWatcher implements EntryPoint {
 			String changePerText = changeFormat.format(stockPrice.getChangePercent());
 			
 			stockFlexTable.setText(row, PRICE_COLUMN_IDX, priceText);
-			stockFlexTable.setText(row, CHANGE_PRICE_COLUMN_IDX, changeText+ "(" + changePerText + "%)");
+			//stockFlexTable.setText(row, CHANGE_PRICE_COLUMN_IDX, changeText+ "(" + changePerText + "%)");
+			Label changeLabel = (Label) stockFlexTable.getWidget(row, CHANGE_PRICE_COLUMN_IDX);
+			changeLabel.setText(changeText+ "(" + changePerText + "%)");
+			
+			String changeStyleName = "noChange";
+			final BigDecimal THRESHOLD = new BigDecimal("0.1");
+			if(stockPrice.getChangePercent().signum() < 0 && stockPrice.getChangePercent().abs().compareTo(THRESHOLD) > 0){
+				changeStyleName = "negativeChange";
+			}
+			else if(stockPrice.getChangePercent().signum() > 0  && stockPrice.getChangePercent().abs().compareTo(THRESHOLD) > 0){
+				changeStyleName = "positiveChange";
+			}
+			changeLabel.setStyleName(changeStyleName);
 		}
 		
 		//更新日時を設定
@@ -186,7 +199,8 @@ public class StockWatcher implements EntryPoint {
 		stocks.add(symbol);
 		//新しいセルの追加。リサイズは自動で行われる
 		stockFlexTable.setText(row, STOCK_NAME_COLUMN_IDX, symbol);
-		
+		//変更率カラムはスタイル動的変更のためのダミーラベルをセット
+		stockFlexTable.setWidget(row, CHANGE_PRICE_COLUMN_IDX, new Label());
 		//削除ボタンの追加
 		Button removeStockButton = new Button("x");
 		//依存スタイル設定
