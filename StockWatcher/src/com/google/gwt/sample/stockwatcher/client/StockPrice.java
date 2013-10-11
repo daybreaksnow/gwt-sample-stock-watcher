@@ -37,6 +37,6 @@ public class StockPrice {
 	
 	
 	public BigDecimal getChangePercent() {
-	    return BigDecimal.valueOf(10).multiply(change).divide(price,2,RoundingMode.HALF_UP);
+	    return BigDecimal.valueOf(100).multiply(change).divide(price,2,RoundingMode.HALF_UP);
 	  }
 }

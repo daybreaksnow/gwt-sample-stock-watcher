@@ -2,6 +2,7 @@ package com.google.gwt.sample.stockwatcher.client;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import com.google.gwt.core.client.EntryPoint;
@@ -10,6 +11,7 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.dom.client.KeyPressEvent;
 import com.google.gwt.event.dom.client.KeyPressHandler;
+import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.user.client.Random;
 import com.google.gwt.user.client.Timer;
@@ -86,6 +88,10 @@ public class StockWatcher implements EntryPoint {
 			stockFlexTable.setText(row, PRICE_COLUMN_IDX, priceText);
 			stockFlexTable.setText(row, CHANGE_PRICE_COLUMN_IDX, changeText+ "(" + changePerText + "%)");
 		}
+		
+		//更新日時を設定
+		 lastUpdatedLabel.setText("Last update : "
+			        + DateTimeFormat.getMediumDateTimeFormat().format(new Date()));
 	}
 
 	private void initStockTable() {
