@@ -62,6 +62,9 @@ public class StockWatcher implements EntryPoint {
 			modeLabel.setText("dev");
 		}
 		RootPanel.get("mode").add(modeLabel);
+		//UiBinderのサンプル
+		HelloView sampleView = new HelloView("Hello");
+		RootPanel.get("hello").add(sampleView);
 	}
 
 	
