@@ -2,6 +2,7 @@ body {
 	padding:10px;
 }
 
+/** テーブル用スタイル*/
 .watchListHeader{
 	background-color: #2062B8;
 	color:white;
@@ -21,4 +22,9 @@ body {
 
 .watchListRemoveColumn{
 	text-align :center;
+}
+
+/* dependentName */
+.gwt-Button-remove{
+	width:50px;
 }

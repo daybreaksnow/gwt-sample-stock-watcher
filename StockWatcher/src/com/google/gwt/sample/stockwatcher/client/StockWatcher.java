@@ -189,6 +189,9 @@ public class StockWatcher implements EntryPoint {
 		
 		//削除ボタンの追加
 		Button removeStockButton = new Button("x");
+		//依存スタイル設定
+		removeStockButton.setStyleDependentName("remove", true);
+		//アクション
 		removeStockButton.addClickHandler(new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
@@ -198,7 +201,7 @@ public class StockWatcher implements EntryPoint {
 			}
 		});
 		stockFlexTable.setWidget(row, REMOTE_BUTTON_COLUMN_IDX, removeStockButton);
-		//スタイル適用
+		//行スタイル適用
 		setRowStyle(row);
 	}
 	
