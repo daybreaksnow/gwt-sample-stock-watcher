@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.List;
 
 import com.google.gwt.core.client.EntryPoint;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyCodes;
@@ -52,6 +53,15 @@ public class StockWatcher implements EntryPoint {
 		assemblePanel();
 		initHandler();
 		initTimer();
+		//debug
+		Label modeLabel = new Label();
+		if(GWT.isProdMode()){
+			modeLabel.setText("prod");
+		}
+		else{
+			modeLabel.setText("dev");
+		}
+		RootPanel.get("mode").add(modeLabel);
 	}
 
 	
