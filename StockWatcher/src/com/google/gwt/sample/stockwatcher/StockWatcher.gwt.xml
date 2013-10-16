@@ -22,4 +22,7 @@
   <source path='client'/>
   <source path='shared'/>
 
+  <!-- RPCのテストを行うために必要 -->
+  <servlet path="/greet" class="com.google.gwt.sample.stockwatcher.server.GreetingServiceImpl" />
+  
 </module>

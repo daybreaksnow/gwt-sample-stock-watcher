@@ -17,6 +17,7 @@ import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.user.client.Random;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HorizontalPanel;
@@ -35,6 +36,7 @@ public class StockWatcher implements EntryPoint {
 	private HorizontalPanel addPanel = new HorizontalPanel();
 	private TextBox newSymbolTextBox = new TextBox();
 	private Button addStockButton = new Button("Add");
+	private Button sendButton = new Button("Send");
 	private Label lastUpdatedLabel = new Label();
 	
 	
@@ -139,6 +141,7 @@ public class StockWatcher implements EntryPoint {
 		//追加ボタンエリア
 		addPanel.add(newSymbolTextBox);
 		addPanel.add(addStockButton);
+		addPanel.add(sendButton); //RPCテスト用
 		
 		//ルートエリア
 		mainPanel.add(stockFlexTable);
@@ -168,7 +171,30 @@ public class StockWatcher implements EntryPoint {
 			}
 		});
 		
+		//RPCテスト
+		final GreetingServiceAsync greetingService = GWT
+				.create(GreetingService.class);
+		sendButton.addClickHandler(new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+				sendButton.setEnabled(false);
+				greetingService.greetServer(newSymbolTextBox.getText(),
+						new AsyncCallback<String>() {
+							public void onFailure(Throwable caught) {
+								Window.alert("fail:" + caught.getMessage());
+								sendButton.setEnabled(true);
+							}
+
+							public void onSuccess(String result) {
+								Window.alert("success:" + result);
+								sendButton.setEnabled(true);
+							}
+						});
+
+			}
+		});
 	}
+	
 	
 	private void initTimer() {
 		Timer refleshTimer = new Timer() {
