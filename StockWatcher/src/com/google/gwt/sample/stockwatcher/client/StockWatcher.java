@@ -37,6 +37,7 @@ public class StockWatcher implements EntryPoint {
 	private TextBox newSymbolTextBox = new TextBox();
 	private Button addStockButton = new Button("Add");
 	private Button sendButton = new Button("Send");
+	private Label sendResultLabel = new Label();
 	private Label lastUpdatedLabel = new Label();
 	
 	
@@ -67,10 +68,17 @@ public class StockWatcher implements EntryPoint {
 		//UiBinderのサンプル
 		HelloView sampleView = new HelloView("Hello");
 		RootPanel.get("hello").add(sampleView);
+		//debugIdのセット
+		initDebugId();
 	}
 
-	
-
+	private void initDebugId() {
+		newSymbolTextBox.ensureDebugId("newSymbolTextBox");
+		addStockButton.ensureDebugId("addStockButtonId");
+		sendButton.ensureDebugId("sendButtonId");
+		sendResultLabel.ensureDebugId("sendResultLabel");
+		stockFlexTable.ensureDebugId("stockTableId");
+	}
 
 	private void refleshWatchList(){
 		final BigDecimal MAX_PRICE = BigDecimal.valueOf(100);
@@ -142,6 +150,7 @@ public class StockWatcher implements EntryPoint {
 		addPanel.add(newSymbolTextBox);
 		addPanel.add(addStockButton);
 		addPanel.add(sendButton); //RPCテスト用
+		addPanel.add(sendResultLabel); //RPCテスト用
 		
 		//ルートエリア
 		mainPanel.add(stockFlexTable);
@@ -181,12 +190,14 @@ public class StockWatcher implements EntryPoint {
 				greetingService.greetServer(newSymbolTextBox.getText(),
 						new AsyncCallback<String>() {
 							public void onFailure(Throwable caught) {
-								Window.alert("fail:" + caught.getMessage());
+								sendResultLabel.setText("fail");
+								//Window.alert("fail:" + caught.getMessage());
 								sendButton.setEnabled(true);
 							}
 
 							public void onSuccess(String result) {
-								Window.alert("success:" + result);
+								sendResultLabel.setText("success");
+								//Window.alert("success:" + result);
 								sendButton.setEnabled(true);
 							}
 						});

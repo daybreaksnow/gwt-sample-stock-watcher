@@ -29,6 +29,7 @@ public class HelloView extends Composite implements HasText {
 	public HelloView(String firstName) {
 		initWidget(uiBinder.createAndBindUi(this));
 		button.setText(firstName);
+		button.ensureDebugId("helloButtonId");
 	}
 
 	@UiHandler("button")

@@ -14,6 +14,10 @@
 <!--   <inherits name='com.google.gwt.user.theme.dark.Dark'/>     -->
 
   <!-- Other module inherits                                      -->
+  <!-- デバッグ用IDを有効にする -->
+  <inherits name="com.google.gwt.user.Debug"/>
+  
+
 
   <!-- Specify the app entry point class.                         -->
   <entry-point class='com.google.gwt.sample.stockwatcher.client.StockWatcher'/>
