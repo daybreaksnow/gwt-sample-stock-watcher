@@ -73,10 +73,10 @@ public class StockWatcher implements EntryPoint {
 	}
 
 	private void initDebugId() {
-		newSymbolTextBox.ensureDebugId("newSymbolTextBox");
+		newSymbolTextBox.ensureDebugId("newSymbolTextBoxId");
 		addStockButton.ensureDebugId("addStockButtonId");
 		sendButton.ensureDebugId("sendButtonId");
-		sendResultLabel.ensureDebugId("sendResultLabel");
+		sendResultLabel.ensureDebugId("sendResultLabelId");
 		stockFlexTable.ensureDebugId("stockTableId");
 	}
 
