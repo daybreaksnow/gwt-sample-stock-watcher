@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated 2013/01/13 13:40:52 by Hibernate Tools 3.4.0.CR1 -->
+<hibernate-mapping>
+    <class name="com.google.gwt.sample.stockwatcher.entity" table="user" schema="public">
+        <id name="userId" type="long">
+            <column name="user_id" />
+            <generator class="increment" />
+        </id>
+        <version name="version" type="java.lang.Long">
+            <column name="version" />
+        </version>
+
+        <many-to-one name="homeAddress" class="com.google.gwt.sample.stockwatcher.entity.Address" fetch="join" cascade="all" unique="true">
+            <column name="home_address_id" />
+        </many-to-one>
+        <many-to-one name="billingAddress" class="com.google.gwt.sample.stockwatcher.entity.Address" fetch="join" cascade="all" unique="true">
+            <column name="billing_address_id" />
+        </many-to-one>
+        <property name="username" type="string">
+            <column name="username" length="30" />
+        </property>
+    </class>
+</hibernate-mapping>

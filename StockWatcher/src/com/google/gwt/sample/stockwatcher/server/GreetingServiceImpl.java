@@ -1,6 +1,10 @@
 package com.google.gwt.sample.stockwatcher.server;
 
+import org.hibernate.Session;
+
 import com.google.gwt.sample.stockwatcher.client.GreetingService;
+import com.google.gwt.sample.stockwatcher.entity.AddressUser;
+import com.google.gwt.sample.stockwatcher.server.db.HibernateUtil;
 import com.google.gwt.sample.stockwatcher.shared.FieldVerifier;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
@@ -12,7 +16,12 @@ public class GreetingServiceImpl extends RemoteServiceServlet implements
 		GreetingService {
 
 	public String greetServer(String input) throws IllegalArgumentException {
-		// Verify that the input is valid. 
+		try{
+			Thread.sleep(5000);
+		}catch (Exception e) {
+			// TODO: handle exception
+		}
+		// Verify that the input is valid.
 		if (!FieldVerifier.isValidName(input)) {
 			// If the input is not valid, throw an IllegalArgumentException back to
 			// the client.
@@ -34,7 +43,7 @@ public class GreetingServiceImpl extends RemoteServiceServlet implements
 	/**
 	 * Escape an html string. Escaping data received from the client helps to
 	 * prevent cross-site script vulnerabilities.
-	 * 
+	 *
 	 * @param html the html string to escape
 	 * @return the escaped string
 	 */
@@ -44,5 +53,16 @@ public class GreetingServiceImpl extends RemoteServiceServlet implements
 		}
 		return html.replaceAll("&", "&amp;").replaceAll("<", "&lt;")
 				.replaceAll(">", "&gt;");
+	}
+
+	@Override
+	public String save(String name) throws IllegalArgumentException {
+		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+	    session.beginTransaction();
+	    AddressUser user = new AddressUser();
+	    user.setUsername(name);
+	    session.save(user);
+	    session.getTransaction().commit();
+		return String.valueOf(user.getUserId());
 	}
 }

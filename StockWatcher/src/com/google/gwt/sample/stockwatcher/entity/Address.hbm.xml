@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated 2013/01/13 13:40:52 by Hibernate Tools 3.4.0.CR1 -->
+<hibernate-mapping>
+    <class name="com.google.gwt.sample.stockwatcher.entity.AddressOnetoone" table="address_onetoone" schema="public">
+        <id name="addressId" type="long">
+            <column name="address_id" />
+            <generator class="increment" />
+        </id>
+        <version name="version" type="java.lang.Long">
+            <column name="version" />
+        </version>
+
+        <property name="street" type="string">
+            <column name="street" length="250" />
+        </property>
+        <property name="city" type="string">
+            <column name="city" length="250" />
+        </property>
+        <property name="zipCode" type="string">
+            <column name="zip_code" length="10" />
+        </property>
+        <one-to-one name="userByHomeAddress" class="com.google.gwt.sample.stockwatcher.entity.AddressUser" property-ref="homeAddress" cascade="save-update"/>
+        <one-to-one name="userByBillingAddress" class="com.google.gwt.sample.stockwatcher.entity.AddressUser" property-ref="billingAddress" cascade="save-update"/>
+    </class>
+</hibernate-mapping>

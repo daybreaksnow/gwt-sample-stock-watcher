@@ -38,19 +38,23 @@ public class StockWatcher implements EntryPoint {
 	private Button addStockButton = new Button("Add");
 	private Button sendButton = new Button("Send");
 	private Label sendResultLabel = new Label();
+
+	private Button saveButton = new Button("Save");
+	private Label saveResultLabel = new Label();
+
 	private Label lastUpdatedLabel = new Label();
-	
-	
+
+
 	private static final int STOCK_NAME_COLUMN_IDX = 0;
 	private static final int PRICE_COLUMN_IDX = 1;
 	private static final int CHANGE_PRICE_COLUMN_IDX = 2;
 	private static final int REMOTE_BUTTON_COLUMN_IDX = 3;
-	
+
 	private static final int REFLESH_INTERVAL_MS = 5000; //mill second
-	
+
 	//TODO これはテーブルに保持させたい。モデルと部品を同時に操作しなけれいけないのは面倒
 	private List<String> stocks = new ArrayList<String>();
-	
+
 	public void onModuleLoad() {
 		initStockTable();
 		assemblePanel();
@@ -83,37 +87,37 @@ public class StockWatcher implements EntryPoint {
 	private void refleshWatchList(){
 		final BigDecimal MAX_PRICE = BigDecimal.valueOf(100);
 		final BigDecimal MAX_PRICE_CHANGE_RATE = new BigDecimal("0.02");
-		
+
 		List<StockPrice> prices = new ArrayList<StockPrice>();
 		for (String stock : stocks) {
 			BigDecimal price = BigDecimal.valueOf(Random.nextDouble()).multiply(MAX_PRICE);
 			BigDecimal change = price.multiply(MAX_PRICE_CHANGE_RATE).multiply(BigDecimal.valueOf(Random.nextDouble() * 2.0 - 1.0));
-			
+
 			StockPrice stockPrice = new StockPrice(stock,price,change);
 			prices.add(stockPrice);
 		}
-		
+
 		updateTables(prices);
 	}
-	
+
 	private void updateTables(List<StockPrice> prices) {
 		for (StockPrice stockPrice : prices) {
 			if(!stocks.contains(stockPrice.getSymbol())){
 				return;
 			}
-			
+
 			int row = stocks.indexOf(stockPrice.getSymbol()) + 1;
-			
+
 			String priceText = NumberFormat.getFormat("#,##0.00").format(stockPrice.getPrice());
 			NumberFormat changeFormat = NumberFormat.getFormat("+#,##0.00;-#,##0.00");
 			String changeText = changeFormat.format(stockPrice.getChange());
 			String changePerText = changeFormat.format(stockPrice.getChangePercent());
-			
+
 			stockFlexTable.setText(row, PRICE_COLUMN_IDX, priceText);
 			//stockFlexTable.setText(row, CHANGE_PRICE_COLUMN_IDX, changeText+ "(" + changePerText + "%)");
 			Label changeLabel = (Label) stockFlexTable.getWidget(row, CHANGE_PRICE_COLUMN_IDX);
 			changeLabel.setText(changeText+ "(" + changePerText + "%)");
-			
+
 			String changeStyleName = "noChange";
 			final BigDecimal THRESHOLD = new BigDecimal("0.1");
 			if(stockPrice.getChangePercent().signum() < 0 && stockPrice.getChangePercent().abs().compareTo(THRESHOLD) > 0){
@@ -124,7 +128,7 @@ public class StockWatcher implements EntryPoint {
 			}
 			changeLabel.setStyleName(changeStyleName);
 		}
-		
+
 		//更新日時を設定
 		 lastUpdatedLabel.setText("Last update : "
 			        + DateTimeFormat.getMediumDateTimeFormat().format(new Date()));
@@ -144,19 +148,21 @@ public class StockWatcher implements EntryPoint {
 		//ヘッダ行スタイル適用
 		setRowStyle(0);
 	}
-	
+
 	private void assemblePanel() {
 		//追加ボタンエリア
 		addPanel.add(newSymbolTextBox);
 		addPanel.add(addStockButton);
 		addPanel.add(sendButton); //RPCテスト用
 		addPanel.add(sendResultLabel); //RPCテスト用
-		
+		addPanel.add(saveButton); //Hibernateテスト用
+		addPanel.add(saveResultLabel); //Hibernateテスト用
+
 		//ルートエリア
 		mainPanel.add(stockFlexTable);
 		mainPanel.add(addPanel);
 		mainPanel.add(lastUpdatedLabel);
-		
+
 		//HTMLにはめ込む
 		RootPanel.get("stockList").add(mainPanel);
 	}
@@ -169,7 +175,7 @@ public class StockWatcher implements EntryPoint {
 				addStock();
 			}
 		});
-		
+
 		//名前入力テキストEnterキー押下時
 		newSymbolTextBox.addKeyPressHandler(new KeyPressHandler() {
 			@Override
@@ -179,7 +185,7 @@ public class StockWatcher implements EntryPoint {
 				}
 			}
 		});
-		
+
 		//RPCテスト
 		final GreetingServiceAsync greetingService = GWT
 				.create(GreetingService.class);
@@ -204,9 +210,33 @@ public class StockWatcher implements EntryPoint {
 
 			}
 		});
+
+		//Hibernateテスト
+		saveButton.addClickHandler(new ClickHandler() {
+
+			@Override
+			public void onClick(ClickEvent event) {
+				saveButton.setEnabled(false);
+				greetingService.save(newSymbolTextBox.getText(), new AsyncCallback<String>() {
+
+					@Override
+					public void onSuccess(String result) {
+						saveResultLabel.setText(result);
+						saveButton.setEnabled(true);
+					}
+
+					@Override
+					public void onFailure(Throwable caught) {
+						saveResultLabel.setText("fail." + caught);
+						saveButton.setEnabled(true);
+
+					}
+				});
+			}
+		});
 	}
-	
-	
+
+
 	private void initTimer() {
 		Timer refleshTimer = new Timer() {
 			@Override
@@ -228,7 +258,7 @@ public class StockWatcher implements EntryPoint {
 		}
 		return true;
 	}
-	
+
 	private void addStock(){
 		final String symbol = newSymbolTextBox.getText().toUpperCase().trim();
 
@@ -238,7 +268,7 @@ public class StockWatcher implements EntryPoint {
 		addStockRow(symbol);
 		//価格更新
 		refleshWatchList();
-		
+
 		newSymbolTextBox.setFocus(true);
 		newSymbolTextBox.setText("");
 	}
@@ -268,8 +298,8 @@ public class StockWatcher implements EntryPoint {
 		//行スタイル適用
 		setRowStyle(row);
 	}
-	
-	
+
+
 	private void setRowStyle(int rowIndex){
 		//スタイルの適用
 		// 数字列用スタイル。 XXX 列単位では適用できない？
