@@ -3,7 +3,7 @@
 "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <!-- Generated 2013/01/13 13:40:52 by Hibernate Tools 3.4.0.CR1 -->
 <hibernate-mapping>
-    <class name="com.google.gwt.sample.stockwatcher.entity" table="user" schema="public">
+    <class name="com.google.gwt.sample.stockwatcher.entity.AddressUser" table="address_user" schema="public">
         <id name="userId" type="long">
             <column name="user_id" />
             <generator class="increment" />

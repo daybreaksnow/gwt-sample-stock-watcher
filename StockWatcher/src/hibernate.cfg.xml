@@ -15,9 +15,10 @@
     <property name="hibernate.dialect">
       org.hibernate.dialect.PostgreSQLDialect</property>
     <property name="hibernate.show_sql">true</property>
+    <property name="hibernate.current_session_context_class">org.hibernate.context.ThreadLocalSessionContext</property>
     <!-- Mapping files -->
-    <mapping resource="com/google/gwt/sample/stockwatcher/server/db/AddressUser.hbm.xml"/>
-    <mapping resource="com/google/gwt/sample/stockwatcher/server/db/Address.hbm.xml"/>
+    <mapping resource="com/google/gwt/sample/stockwatcher/entity/AddressUser.hbm.xml"/>
+    <mapping resource="com/google/gwt/sample/stockwatcher/entity/Address.hbm.xml"/>
   </session-factory>
 
 </hibernate-configuration>
