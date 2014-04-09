@@ -25,6 +25,7 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.Widget;
 
 /**
  * Entry point classes define <code>onModuleLoad()</code>.
@@ -41,6 +42,8 @@ public class StockWatcher implements EntryPoint {
 
 	private Button saveButton = new Button("Save");
 	private Label saveResultLabel = new Label();
+
+	private Button switchButton = new Button("ViewSwitch");
 
 	private Label lastUpdatedLabel = new Label();
 
@@ -157,6 +160,7 @@ public class StockWatcher implements EntryPoint {
 		addPanel.add(sendResultLabel); //RPCテスト用
 		addPanel.add(saveButton); //Hibernateテスト用
 		addPanel.add(saveResultLabel); //Hibernateテスト用
+		addPanel.add(switchButton); //画面遷移テスト用
 
 		//ルートエリア
 		mainPanel.add(stockFlexTable);
@@ -232,6 +236,24 @@ public class StockWatcher implements EntryPoint {
 
 					}
 				});
+			}
+		});
+
+		// 画面遷移テスト
+		switchButton.addClickHandler(new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+				RootPanel switchView = RootPanel.get("hello");
+				Widget nowView = switchView.getWidget(0);
+				Widget newView;
+				if(nowView instanceof HelloView){
+					newView = new PiyoView("piyo");
+				}
+				else{
+					newView = new HelloView("Hello");
+				}
+				switchView.remove(0);
+				switchView.add(newView);
 			}
 		});
 	}
